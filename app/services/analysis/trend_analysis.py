@@ -3,13 +3,30 @@ Trend analysis service for stock market data.
 Provides pure, stateless functions for technical trend detection and signal generation.
 """
 
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 import pandas as pd
+
 from app.utils.logger import log
 
 REQUIRED_COLUMNS = [
-    "macd", "signal_line", "5ma", "10ma", "20ma", "open", "high", "low",
-    "close", "vma_short", "vma_long", "cci", "volume", "rsi", "bollinger_upper", "bollinger_lower", "atr"
+    "macd",
+    "signal_line",
+    "5ma",
+    "10ma",
+    "20ma",
+    "open",
+    "high",
+    "low",
+    "close",
+    "vma_short",
+    "vma_long",
+    "cci",
+    "volume",
+    "rsi",
+    "bollinger_upper",
+    "bollinger_lower",
+    "atr",
 ]
 
 
@@ -36,10 +53,18 @@ def recent_high_signal(trend_ticks: pd.DataFrame) -> bool:
     return latest_close > rolling_high_3
 
 
-def sustained_highs_count(trend_ticks: pd.DataFrame, breakout_window: int, sustained_days: int) -> int:
+def sustained_highs_count(
+    trend_ticks: pd.DataFrame, breakout_window: int, sustained_days: int
+) -> int:
     sustained_highs = 0
     for i in range(1, sustained_days + 1):
-        rolling_high_prev = trend_ticks["close"].iloc[:-(i + 1)].rolling(window=breakout_window).max().iloc[-1]
+        rolling_high_prev = (
+            trend_ticks["close"]
+            .iloc[: -(i + 1)]
+            .rolling(window=breakout_window)
+            .max()
+            .iloc[-1]
+        )
         if trend_ticks["close"].iloc[-i] > rolling_high_prev:
             sustained_highs += 1
         else:
@@ -66,21 +91,23 @@ def momentum_kbar_signal(df: pd.DataFrame, index: int) -> bool:
         return False
     current_bar = df.iloc[index]
     previous_bar = df.iloc[index - 1]
-    if current_bar['volume'] <= previous_bar['volume'] * vol_threshold:
+    if current_bar["volume"] <= previous_bar["volume"] * vol_threshold:
         return False
-    body_size = abs(current_bar['close'] - current_bar['open'])
-    total_length = current_bar['high'] - current_bar['low']
+    body_size = abs(current_bar["close"] - current_bar["open"])
+    total_length = current_bar["high"] - current_bar["low"]
     if total_length == 0:
         return False
     shadow_ratio = (
-        (current_bar['high'] - max(current_bar['close'], current_bar['open']) +
-         min(current_bar['close'], current_bar['open']) - current_bar['low']) / total_length
-    )
+        current_bar["high"]
+        - max(current_bar["close"], current_bar["open"])
+        + min(current_bar["close"], current_bar["open"])
+        - current_bar["low"]
+    ) / total_length
     if shadow_ratio > 0.2:
         return False
-    recent_high = df.iloc[max(0, index - 3):index]['high'].max()
-    recent_low = df.iloc[max(0, index - 3):index]['low'].min()
-    return current_bar['close'] > recent_high or current_bar['close'] < recent_low
+    recent_high = df.iloc[max(0, index - 3) : index]["high"].max()
+    recent_low = df.iloc[max(0, index - 3) : index]["low"].min()
+    return current_bar["close"] > recent_high or current_bar["close"] < recent_low
 
 
 def rsi_overbought_signal(rsi: float) -> bool:
@@ -103,7 +130,7 @@ def generate_trend_signals(
     df: pd.DataFrame,
     trend_lookback_period: int = 60,
     breakout_window: int = 10,
-    sustained_breakout_days: int = 3
+    sustained_breakout_days: int = 3,
 ) -> Dict[str, Any]:
     """
     Generate a structured signal dict for LLM or downstream analysis based on technical indicators.
@@ -126,7 +153,9 @@ def generate_trend_signals(
     signal["recent_high"] = recent_high_signal(trend_ticks)
 
     # 連續突破
-    sustained_highs = sustained_highs_count(trend_ticks, breakout_window, sustained_breakout_days)
+    sustained_highs = sustained_highs_count(
+        trend_ticks, breakout_window, sustained_breakout_days
+    )
     signal["sustained_highs"] = sustained_highs
     signal["sustained_highs_enough"] = sustained_highs >= sustained_breakout_days
 
@@ -162,7 +191,8 @@ def generate_trend_signals(
 
     # 綜合 summary (可給 LLM)
     signal["trend_categories"] = [
-        k for k, v in {
+        k
+        for k, v in {
             "macd_bullish": signal["macd_bullish"],
             "recent_high": signal["recent_high"],
             "sustained_highs_enough": signal["sustained_highs_enough"],
@@ -171,8 +201,9 @@ def generate_trend_signals(
             "momentum_kbar": signal["momentum_kbar"],
             "rsi_overbought": signal["rsi_overbought"],
             "rsi_oversold": signal["rsi_oversold"],
-            "bollinger_breakout": signal["bollinger_breakout"] != "none"
-        }.items() if v
+            "bollinger_breakout": signal["bollinger_breakout"] != "none",
+        }.items()
+        if v
     ]
     signal["signal_status"] = "ok"
     return signal

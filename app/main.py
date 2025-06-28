@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
-from app.configs.config import get_config
+
 from app.api.v1.endpoints import router as v1_router
+from app.configs.config import get_config
 from app.utils.logger import Loggers, log
 
 config = get_config()

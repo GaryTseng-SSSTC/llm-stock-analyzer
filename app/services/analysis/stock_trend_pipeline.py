@@ -2,21 +2,24 @@
 Stock trend analysis pipeline: fetch kbar, calculate indicators, and generate structured signals for LLM or downstream analysis.
 All functions are pure, testable, and follow SRP.
 """
+
 import pandas as pd
-from app.internal.yfinance.stock_data import fetch_kline_data
+
 from app.internal.analysis.indicators import (
-    calculate_moving_averages,
-    calculate_macd,
-    calculate_vma,
-    calculate_cci,
-    calculate_rsi,
-    calculate_bollinger_bands,
-    calculate_atr,
-    calculate_kdj,
-    calculate_obv,
     calculate_adx,
+    calculate_atr,
+    calculate_bollinger_bands,
+    calculate_cci,
+    calculate_kdj,
+    calculate_macd,
+    calculate_moving_averages,
+    calculate_obv,
+    calculate_rsi,
+    calculate_vma,
 )
+from app.internal.yfinance.stock_data import fetch_kline_data
 from app.services.analysis.trend_analysis import generate_trend_signals
+
 
 def fetch_and_prepare_kline(stock_id: str) -> pd.DataFrame:
     """
@@ -27,6 +30,7 @@ def fetch_and_prepare_kline(stock_id: str) -> pd.DataFrame:
     if df is None or df.empty:
         return pd.DataFrame()
     return df
+
 
 def enrich_with_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -45,11 +49,13 @@ def enrich_with_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df = calculate_adx(df)
     return df
 
+
 def convert_numpy_types(obj):
     """
     Recursively convert numpy types in a dict/list to native Python types for serialization and readability.
     """
     import numpy as np
+
     if isinstance(obj, dict):
         return {k: convert_numpy_types(v) for k, v in obj.items()}
     elif isinstance(obj, list):
@@ -57,6 +63,7 @@ def convert_numpy_types(obj):
     elif isinstance(obj, (np.generic,)):
         return obj.item()
     return obj
+
 
 def analyze_stock_trend_signal(stock_id: str) -> dict:
     """

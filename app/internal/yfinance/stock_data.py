@@ -2,10 +2,14 @@
 YFinance data retrieval service for stock OHLCV and info.
 All functions are pure and suitable for dependency injection.
 """
-import pandas as pd
-import yfinance as yf
+
 from typing import Dict
+
+import pandas as pd
+
+import yfinance as yf
 from app.utils.logger import log
+
 
 def fetch_kline_data(yf_code: str) -> pd.DataFrame:
     """
@@ -23,29 +27,32 @@ def fetch_kline_data(yf_code: str) -> pd.DataFrame:
         if isinstance(data.columns, pd.MultiIndex):
             data.columns = data.columns.droplevel(1)
         column_mapping = {
-            'Open': 'open',
-            'High': 'high',
-            'Low': 'low',
-            'Close': 'close',
-            'Volume': 'volume'
+            "Open": "open",
+            "High": "high",
+            "Low": "low",
+            "Close": "close",
+            "Volume": "volume",
         }
         expected_columns = list(column_mapping.keys())
         missing_columns = [col for col in expected_columns if col not in data.columns]
         if missing_columns:
-            log.warning(f"Missing expected columns {missing_columns} in data for {yf_code}")
+            log.warning(
+                f"Missing expected columns {missing_columns} in data for {yf_code}"
+            )
             return pd.DataFrame()
         data = data.rename(columns=column_mapping)
-        data.index.name = 'timestamp'
-        data = data[['open', 'high', 'low', 'close', 'volume']]
-        data['volume'] = (data['volume'] // 1000)
-        data['open'] = (data['open'] // 1)
-        data['high'] = (data['high'] // 1)
-        data['low'] = (data['low'] // 1)
-        data['close'] = (data['close'] // 1)
+        data.index.name = "timestamp"
+        data = data[["open", "high", "low", "close", "volume"]]
+        data["volume"] = data["volume"] // 1000
+        data["open"] = data["open"] // 1
+        data["high"] = data["high"] // 1
+        data["low"] = data["low"] // 1
+        data["close"] = data["close"] // 1
         return data
     except Exception as e:
         log.error(f"Error fetching data for ({yf_code}): {e}")
         return pd.DataFrame()
+
 
 def fetch_stock_info(yf_code: str) -> Dict[str, str]:
     """
@@ -58,8 +65,8 @@ def fetch_stock_info(yf_code: str) -> Dict[str, str]:
     try:
         stock = yf.Ticker(yf_code)
         info = stock.info
-        sector = info.get('sector', '未知行業')
-        industry = info.get('industry', '未知產業')
+        sector = info.get("sector", "未知行業")
+        industry = info.get("industry", "未知產業")
         return {"sector": sector, "industry": industry}
     except Exception as e:
         log.error(f"Failed to get basic info for {yf_code}: {e}")

@@ -1,17 +1,25 @@
 # FastAPI API endpoints
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from app.internal.llm.chain import get_llm_client, get_analysis_prompt_template, build_stock_analysis_chain_with_retry
+
+from app.internal.llm.chain import (
+    build_stock_analysis_chain_with_retry,
+    get_analysis_prompt_template,
+    get_llm_client,
+)
 
 router = APIRouter()
 
+
 class StockAnalysisRequest(BaseModel):
     stock_id: str
+
 
 class StockAnalysisResponse(BaseModel):
     stock_id: str
     suggestion: str
     reason: str
+
 
 @router.post("/stock/llm-report", response_model=StockAnalysisResponse)
 async def get_stock_llm_report(request: StockAnalysisRequest):
@@ -28,7 +36,7 @@ async def get_stock_llm_report(request: StockAnalysisRequest):
         return StockAnalysisResponse(
             stock_id=llm_result.get("stock_id", request.stock_id),
             suggestion=llm_result.get("suggestion", ""),
-            reason=llm_result.get("reason", "")
+            reason=llm_result.get("reason", ""),
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM analysis failed: {str(e)}")
