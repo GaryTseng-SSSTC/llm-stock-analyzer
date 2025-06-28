@@ -1,0 +1,23 @@
+app:
+  host: "127.0.0.1"
+  name: "LLM Stock Analyzer API"
+  description: "LLM Stock analyzer API"
+  version: "0.0.1"
+  port: 8000
+  log_level: "INFO"
+
+llm:
+  reasoning_report_prompt_path: "./app/prompts/stock_analysis_prompt.md"
+  temperature: 0.5
+  max_tokens: 4096
+  retry: 3
+
+shioaji:
+  api_key: "your_shioaji_api_key_here"
+  api_secret: "your_shioaji_api_secret_here"
+
+azure_openai:
+  endpoint: "https://your-azure-openai-endpoint.openai.azure.com/"
+  api_version: "2024-12-01-preview"
+  deployment: "gpt-4.1"
+  subscription_key: "your_azure_openai_subscription_key_here"
