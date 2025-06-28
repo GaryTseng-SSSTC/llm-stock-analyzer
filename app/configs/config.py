@@ -20,7 +20,7 @@ class AppConfig(BaseSettings):
 
 
 class LLMConfig(BaseSettings):
-    reasoning_report_prompt_path: StrictStr
+    stock_analyzer_prompt_path: StrictStr
     temperature: StrictFloat
     max_tokens: StrictInt
     retry: StrictInt
