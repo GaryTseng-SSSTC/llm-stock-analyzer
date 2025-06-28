@@ -5,6 +5,7 @@ All functions are pure and suitable for dependency injection.
 import pandas as pd
 import yfinance as yf
 from typing import Dict
+from app.utils.logger import log
 
 def fetch_kline_data(yf_code: str) -> pd.DataFrame:
     """
@@ -17,7 +18,7 @@ def fetch_kline_data(yf_code: str) -> pd.DataFrame:
     try:
         data = yf.download(tickers=yf_code, period="3mo", interval="1d")
         if data.empty:
-            print(f"No data returned for ({yf_code})")
+            log.warning(f"No data returned for ({yf_code})")
             return pd.DataFrame()
         if isinstance(data.columns, pd.MultiIndex):
             data.columns = data.columns.droplevel(1)
@@ -31,7 +32,7 @@ def fetch_kline_data(yf_code: str) -> pd.DataFrame:
         expected_columns = list(column_mapping.keys())
         missing_columns = [col for col in expected_columns if col not in data.columns]
         if missing_columns:
-            print(f"Missing expected columns {missing_columns} in data for {yf_code}")
+            log.warning(f"Missing expected columns {missing_columns} in data for {yf_code}")
             return pd.DataFrame()
         data = data.rename(columns=column_mapping)
         data.index.name = 'timestamp'
@@ -43,7 +44,7 @@ def fetch_kline_data(yf_code: str) -> pd.DataFrame:
         data['close'] = (data['close'] // 1)
         return data
     except Exception as e:
-        print(f"Error fetching data for ({yf_code}): {e}")
+        log.error(f"Error fetching data for ({yf_code}): {e}")
         return pd.DataFrame()
 
 def fetch_stock_info(yf_code: str) -> Dict[str, str]:
@@ -61,5 +62,5 @@ def fetch_stock_info(yf_code: str) -> Dict[str, str]:
         industry = info.get('industry', '未知產業')
         return {"sector": sector, "industry": industry}
     except Exception as e:
-        print(f"無法獲取 {yf_code} 的基本資訊: {e}")
+        log.error(f"Failed to get basic info for {yf_code}: {e}")
         return {"sector": "未知行業", "industry": "未知產業"}
