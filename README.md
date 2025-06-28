@@ -43,6 +43,26 @@ A modern, maintainable API service for LLM-powered stock analysis, built with Fa
    {"stock_id":"2330.TW","suggestion":"Long","reason":"The stock is in a strong uptrend with bullish MACD, consistent new highs, and confirmed momentum. Volume is stable and there are no overbought signals on RSI, suggesting the move is not exhausted. While there's no volume spike or breakout, the trend is well-supported and risk appears manageable. Consider a trailing stop to protect profits in case momentum fades."}
    ```
 
+## Environment Setup (Recommended: uv)
+
+1. **Create a virtual environment with uv:**
+
+   ```sh
+   uv venv
+   ```
+
+2. **Activate the virtual environment:**
+
+   ```sh
+   source .venv/bin/activate
+   ```
+
+3. **Sync and install all dependencies:**
+
+   ```sh
+   uv sync
+   ```
+
 ## Project Structure
 
 - `app/main.py` — FastAPI app entrypoint, config, logger
