@@ -5,6 +5,7 @@ Provides pure, stateless functions for technical trend detection and signal gene
 
 from typing import List, Dict, Any
 import pandas as pd
+from app.utils.logger import log
 
 REQUIRED_COLUMNS = [
     "macd", "signal_line", "5ma", "10ma", "20ma", "open", "high", "low",
@@ -15,7 +16,7 @@ REQUIRED_COLUMNS = [
 def validate_required_columns(df: pd.DataFrame, required: List[str]) -> bool:
     missing = [col for col in required if col not in df.columns]
     if missing:
-        print(f"[Error] Missing columns: {missing}")
+        log.error(f"[Error] Missing columns: {missing}")
         return False
     return True
 
