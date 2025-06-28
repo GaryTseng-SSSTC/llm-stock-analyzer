@@ -63,3 +63,6 @@ This repository manages prompt templates, LLM integration logic, and best practi
 **Every time you respond to a user query in Copilot Chat:**
 - Begin by stating: _“I've reviewed and understood the project's Copilot instructions. Based on your codebase’s style and declared dependencies, here’s the best solution...”_
 - Do not answer any question until this declaration is made and all suggestions follow the documented style.
+
+## Additional Rules
+- Only use English for all code comments and docstrings. Do not use Chinese or other languages for comments in any code file.
