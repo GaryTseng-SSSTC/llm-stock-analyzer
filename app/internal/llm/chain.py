@@ -53,7 +53,9 @@ def load_prompt_template(prompt_file: Path) -> PromptTemplate:
 
 def get_analysis_prompt_template() -> PromptTemplate:
     """Return stock analysis prompt template."""
-    return load_prompt_template(config.llm.stock_analyzer_prompt_path)
+    from pathlib import Path
+
+    return load_prompt_template(Path(config.llm.stock_analyzer_prompt_path))
 
 
 def build_prompt_formatting_chain(prompt_template: PromptTemplate) -> RunnableLambda:

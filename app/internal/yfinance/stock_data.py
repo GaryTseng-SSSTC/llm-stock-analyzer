@@ -21,7 +21,7 @@ def fetch_kline_data(yf_code: str) -> pd.DataFrame:
     """
     try:
         data = yf.download(tickers=yf_code, period="3mo", interval="1d")
-        if data.empty:
+        if data is None or data.empty:
             log.warning(f"No data returned for ({yf_code})")
             return pd.DataFrame()
         if isinstance(data.columns, pd.MultiIndex):
@@ -43,6 +43,9 @@ def fetch_kline_data(yf_code: str) -> pd.DataFrame:
         data = data.rename(columns=column_mapping)
         data.index.name = "timestamp"
         data = data[["open", "high", "low", "close", "volume"]]
+        # If data is a Series, convert to DataFrame
+        if isinstance(data, pd.Series):
+            data = data.to_frame().T
         data["volume"] = data["volume"] // 1000
         data["open"] = data["open"] // 1
         data["high"] = data["high"] // 1

@@ -4,6 +4,7 @@ All functions are pure, testable, and follow SRP.
 """
 
 import pandas as pd
+from typing import Any
 
 from app.internal.analysis.indicators import (
     calculate_adx,
@@ -65,7 +66,7 @@ def convert_numpy_types(obj):
     return obj
 
 
-def analyze_stock_trend_signal(stock_id: str) -> dict:
+def analyze_stock_trend_signal(stock_id: str) -> dict[str, Any]:
     """
     Main pipeline: fetch kbar, enrich with indicators, and generate structured trend signals.
     Returns a signal dict for LLM or downstream use.
@@ -75,4 +76,7 @@ def analyze_stock_trend_signal(stock_id: str) -> dict:
         return {"signal_status": "invalid", "reason": f"No kbar data for {stock_id}"}
     enriched_df = enrich_with_all_indicators(df)
     signal = generate_trend_signals(enriched_df)
+    # Ensure the result is a dict at the top level
+    if not isinstance(signal, dict):
+        return {"signal_status": "invalid", "reason": "Signal is not a dict"}
     return convert_numpy_types(signal)

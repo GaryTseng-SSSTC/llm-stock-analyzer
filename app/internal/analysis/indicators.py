@@ -5,6 +5,7 @@ All functions are pure and stateless, suitable for use in async API services.
 
 from typing import Any, Callable, Dict
 
+import numpy as np
 import pandas as pd
 
 
@@ -102,21 +103,15 @@ def calculate_obv(df: pd.DataFrame) -> pd.DataFrame:
 
 def calculate_adx(df: pd.DataFrame, window: int = 14) -> pd.DataFrame:
     df["up_move"] = df["high"].diff()
-    df["down_move"] = df["low"].diff().abs()
-    df["plus_dm"] = ((df["up_move"] > df["down_move"]) & (df["up_move"] > 0)) * df[
-        "up_move"
-    ]
-    df["minus_dm"] = ((df["down_move"] > df["up_move"]) & (df["down_move"] > 0)) * df[
-        "down_move"
-    ]
-    tr = pd.concat(
-        [
-            df["high"] - df["low"],
-            (df["high"] - df["close"].shift()).abs(),
-            (df["low"] - df["close"].shift()).abs(),
-        ],
-        axis=1,
-    ).max(axis=1)
+    df["down_move"] = df["low"].diff()
+    df["down_move"] = df["down_move"].apply(lambda x: abs(x) if pd.notnull(x) else x)
+    df["plus_dm"] = ((df["up_move"] > df["down_move"]) & (df["up_move"] > 0)) * df["up_move"]
+    df["minus_dm"] = ((df["down_move"] > df["up_move"]) & (df["down_move"] > 0)) * df["down_move"]
+    tr = pd.concat([
+        df["high"] - df["low"],
+        (df["high"] - df["close"].shift()).abs(),
+        (df["low"] - df["close"].shift()).abs(),
+    ], axis=1).max(axis=1)
     atr = tr.rolling(window=window).mean()
     plus_di = 100 * (df["plus_dm"].rolling(window=window).sum() / atr)
     minus_di = 100 * (df["minus_dm"].rolling(window=window).sum() / atr)

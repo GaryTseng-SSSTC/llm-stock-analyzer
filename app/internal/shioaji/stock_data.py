@@ -104,6 +104,9 @@ def get_filtered_stocks(api, sj) -> pd.DataFrame:
         if result_df.empty:
             log.warning("[Shioaji] No merged result data.")
             return pd.DataFrame()
+        # Ensure result_df is always a DataFrame
+        if isinstance(result_df, pd.Series):
+            result_df = result_df.to_frame().T
         result_df = result_df[["yf_code", "name", "change_rate"]].copy()
         return result_df
     except Exception as e:
