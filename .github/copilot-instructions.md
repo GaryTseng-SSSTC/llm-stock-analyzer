@@ -3,6 +3,21 @@
 ## Project Context
 This repository manages prompt templates, LLM integration logic, and best practices for a stock analysis API service. The project is built with FastAPI, LangChain, and related Python tools. The main goal is to provide a maintainable, modern, and robust API for LLM-powered stock analysis, not to serve as an application codebase.
 
+## Project Structure (2025-06-30)
+- `app/main.py` — FastAPI app entrypoint, config, logger
+- `app/api/v1/endpoints.py` — API endpoints (LLM analysis, health)
+- `app/configs/config.py` — Pydantic config, YAML loading
+- `app/internal/analysis/indicators.py` — Technical indicator functions
+- `app/internal/llm/chain.py` — LLM chain, prompt formatting, output parsing
+- `app/internal/shioaji/stock_data.py` — Shioaji (TW market) data logic
+- `app/internal/yfinance/stock_data.py` — YFinance (global market) data logic
+- `app/services/analysis/stock_trend_pipeline.py` — Data pipeline, indicator enrichment
+- `app/services/analysis/trend_analysis.py` — Trend signal generation
+- `app/utils/logger.py` — Structured logging
+- `app/assets/stock_analyzer_prompt.md` — Versioned, documented prompt template
+- `tests/` — Pytest test cases for all modules and endpoints
+- `.github/workflows/ci.yml` — CI workflow for lint, type check, and tests
+
 ## Used Technologies
 - **Python**: 3.12+
 - **FastAPI**: >=0.115.14
@@ -27,9 +42,11 @@ This repository manages prompt templates, LLM integration logic, and best practi
 - Use async/await for all I/O-bound operations and endpoint handlers.
 - Use Pydantic v2 models for all request/response schemas.
 - Separate business logic (e.g., stock analysis, LLM calls) into service modules under `app/services/`.
-- Store configuration and environment logic in `app/core/config.py`.
-- Place all prompt templates and LLM-related logic in dedicated files or modules (e.g., `app/services/langchain_service.py`).
-- Write tests in the `tests/` directory, using pytest or unittest.
+- Store configuration and environment logic in `app/configs/config.py`.
+- Place all prompt templates and LLM-related logic in dedicated files or modules (e.g., `app/internal/llm/chain.py`).
+- Write tests in the `tests/` directory, using pytest.
+- Use a centralized logger (`app/utils/logger.py`) for all logging.
+- Use GitHub Actions for CI (see `.github/workflows/ci.yml`).
 
 ## LLM Integration Rules
 - All LLM calls (e.g., via LangChain) must be wrapped in service functions/modules, not directly in API endpoints.
@@ -44,7 +61,6 @@ This repository manages prompt templates, LLM integration logic, and best practi
 - Write docstrings for all public functions, classes, and modules.
 - Use descriptive variable and function names (English preferred).
 - Keep all dependencies up to date as per `pyproject.toml`.
-- Use `.env` files for local secrets and configuration (never commit secrets).
 - Document any non-obvious logic or business rules inline with comments.
 - Use Git for version control and keep commit messages clear and descriptive.
 
