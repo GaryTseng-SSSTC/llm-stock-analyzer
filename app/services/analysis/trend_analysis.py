@@ -59,15 +59,15 @@ def sustained_highs_count(
     sustained_highs = 0
     for i in range(1, sustained_days + 1):
         rolling_high_prev_series = (
-            trend_ticks["close"]
-            .iloc[: -(i + 1)]
-            .rolling(window=breakout_window)
-            .max()
+            trend_ticks["close"].iloc[: -(i + 1)].rolling(window=breakout_window).max()
         )
-        if isinstance(rolling_high_prev_series, pd.Series) and not rolling_high_prev_series.empty:
+        if (
+            isinstance(rolling_high_prev_series, pd.Series)
+            and not rolling_high_prev_series.empty
+        ):
             rolling_high_prev = rolling_high_prev_series.iloc[-1]
         else:
-            rolling_high_prev = float('-inf')
+            rolling_high_prev = float("-inf")
         if trend_ticks["close"].iloc[-i] > rolling_high_prev:
             sustained_highs += 1
         else:

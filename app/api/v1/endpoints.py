@@ -1,5 +1,5 @@
 # FastAPI API endpoints
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.internal.llm.chain import (

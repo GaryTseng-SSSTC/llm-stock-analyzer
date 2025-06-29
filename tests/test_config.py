@@ -1,7 +1,5 @@
-import os
 from unittest.mock import mock_open, patch
 
-import pytest
 import yaml
 
 from app.configs import config

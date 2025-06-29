@@ -3,8 +3,9 @@ Stock trend analysis pipeline: fetch kbar, calculate indicators, and generate st
 All functions are pure, testable, and follow SRP.
 """
 
-import pandas as pd
 from typing import Any
+
+import pandas as pd
 
 from app.internal.analysis.indicators import (
     calculate_adx,

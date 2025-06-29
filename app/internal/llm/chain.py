@@ -34,7 +34,7 @@ def load_prompt_template(prompt_file: Path) -> PromptTemplate:
     try:
         with open(prompt_file, "r", encoding="utf-8") as f:
             prompt_template_str = f.read().strip()
-    except Exception as e:
+    except Exception:
         raise
     # Ensure prompt template contains {stock_id} and {signal_json} variables
     if (
