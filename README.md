@@ -76,7 +76,7 @@ A modern, maintainable API service for LLM-powered stock analysis, built with Fa
 - `app/services/analysis/stock_trend_pipeline.py` — Data pipeline, indicator enrichment
 - `app/services/analysis/trend_analysis.py` — Trend signal generation
 - `app/utils/logger.py` — Structured logging (Loguru)
-- `app/assets/stock_analyzer_prompt.md` — Versioned, documented prompt template
+- `app/prompts/stock_analyzer_prompt.md` — Versioned, documented prompt template
 - `tests/` — Pytest test cases for all modules and endpoints
 - `.github/workflows/ci.yml` — CI workflow for lint, type check, and tests
 
