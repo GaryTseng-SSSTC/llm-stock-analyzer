@@ -6,10 +6,7 @@ Do NOT initialize or login Shioaji API in this module; inject api/sj from outsid
 
 import pandas as pd
 
-from app.configs.config import get_config
 from app.utils.logger import log
-
-config = get_config()
 
 
 def get_shioaji_scanners(api, sj, count: int = 200) -> pd.DataFrame:

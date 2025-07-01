@@ -3,7 +3,7 @@ LLM chain for stock trend analysis: embeds signal into prompt and queries LLM.
 """
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
@@ -11,14 +11,14 @@ from langchain_core.runnables import RunnableLambda, RunnableSerializable
 from langchain_core.runnables.retry import RunnableRetry
 from langchain_openai import AzureChatOpenAI
 
-from app.configs.config import get_config
+from app.configs.config import Config, get_config
 from app.services.analysis.stock_trend_pipeline import analyze_stock_trend_signal
 
-config = get_config()
 
-
-def get_llm_client() -> AzureChatOpenAI:
+def get_llm_client(config: Optional[Config] = None) -> AzureChatOpenAI:
     """Return AzureChatOpenAI client for stock analysis."""
+    if config is None:
+        config = get_config()
     return AzureChatOpenAI(
         azure_deployment=config.azure_openai.deployment,
         azure_endpoint=config.azure_openai.endpoint,
@@ -51,10 +51,10 @@ def load_prompt_template(prompt_file: Path) -> PromptTemplate:
     )
 
 
-def get_analysis_prompt_template() -> PromptTemplate:
+def get_analysis_prompt_template(config: Optional[Config] = None) -> PromptTemplate:
     """Return stock analysis prompt template."""
-    from pathlib import Path
-
+    if config is None:
+        config = get_config()
     return load_prompt_template(Path(config.llm.stock_analyzer_prompt_path))
 
 
@@ -118,8 +118,10 @@ def build_stock_analysis_chain(
 
 
 def build_stock_analysis_chain_with_retry(
-    llm_client: Any, prompt_template: PromptTemplate
+    llm_client: Any, prompt_template: PromptTemplate, config: Optional[Config] = None
 ) -> RunnableSerializable:
     """Full chain with retry: stock_id → signal → prompt → LLM → JSON parse (with retry)."""
+    if config is None:
+        config = get_config()
     base_chain = build_stock_analysis_chain(llm_client, prompt_template)
     return RunnableRetry(bound=base_chain, max_attempt_number=config.llm.retry)
