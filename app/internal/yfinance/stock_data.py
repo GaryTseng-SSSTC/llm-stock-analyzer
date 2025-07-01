@@ -20,7 +20,9 @@ def fetch_kline_data(yf_code: str) -> pd.DataFrame:
         pd.DataFrame: DataFrame with columns [open, high, low, close, volume].
     """
     try:
-        data = yf.download(tickers=yf_code, period="3mo", interval="1d")
+        data = yf.download(
+            tickers=yf_code, period="3mo", interval="1d", auto_adjust=True
+        )
         if data is None or data.empty:
             log.warning(f"No data returned for ({yf_code})")
             return pd.DataFrame()
