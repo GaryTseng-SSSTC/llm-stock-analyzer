@@ -3,7 +3,7 @@ dev:
 	uv run fastapi dev
 
 format:
-	uv run ruff format --check -v .
+	uv run ruff format -v .
 
 lint:
 	uv run ruff check --select I --fix .	

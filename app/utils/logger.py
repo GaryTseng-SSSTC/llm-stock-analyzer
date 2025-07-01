@@ -54,7 +54,7 @@ class Logger:
                 {
                     "sink": sys.stdout,
                     "level": log_level,
-                    "serialize": True,  # Enable JSON lines
+                    "serialize": False,  # Enable JSON lines
                 },
                 {
                     "sink": log_path,

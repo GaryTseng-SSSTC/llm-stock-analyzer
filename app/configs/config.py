@@ -6,11 +6,11 @@ import os
 from functools import lru_cache
 
 import yaml
-from pydantic import SecretStr, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, SecretStr, StrictFloat, StrictInt, StrictStr
 from pydantic_settings import BaseSettings
 
 
-class AppConfig(BaseSettings):
+class AppConfig(BaseModel):
     host: StrictStr
     name: StrictStr
     description: StrictStr
@@ -19,19 +19,19 @@ class AppConfig(BaseSettings):
     log_level: StrictStr
 
 
-class LLMConfig(BaseSettings):
+class LLMConfig(BaseModel):
     stock_analyzer_prompt_path: StrictStr
     temperature: StrictFloat
     max_tokens: StrictInt
     retry: StrictInt
 
 
-class ShioajiConfig(BaseSettings):
+class ShioajiConfig(BaseModel):
     api_key: str
     api_secret: str
 
 
-class AzureOpenAIConfig(BaseSettings):
+class AzureOpenAIConfig(BaseModel):
     endpoint: StrictStr
     api_version: StrictStr
     deployment: StrictStr

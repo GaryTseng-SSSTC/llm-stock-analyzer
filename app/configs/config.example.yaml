@@ -7,7 +7,7 @@ app:
   log_level: "INFO"
 
 llm:
-  stock_analysis_prompt_path: "./app/prompts/stock_analysis_prompt.md"
+  stock_analyzer_prompt_path: "./app/prompts/stock_analyzer_prompt.md"
   temperature: 0.5
   max_tokens: 4096
   retry: 3
