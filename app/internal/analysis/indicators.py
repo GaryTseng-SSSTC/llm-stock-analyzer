@@ -7,6 +7,13 @@ import pandas as pd
 
 
 def calculate_moving_averages(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    計算移動平均線 (Moving Averages, MA)。
+    - 5MA: 短期趨勢
+    - 10MA: 中期趨勢
+    - 20MA: 長期趨勢 (月線)
+    用途: 判斷股價趨勢方向。黃金交叉 (短期上穿長期) 為買入訊號，死亡交叉 (短期下穿長期) 為賣出訊號。
+    """
     df["5ma"] = df["close"].rolling(window=5).mean()
     df["10ma"] = df["close"].rolling(window=10).mean()
     df["20ma"] = df["close"].rolling(window=20).mean()
@@ -16,6 +23,13 @@ def calculate_moving_averages(df: pd.DataFrame) -> pd.DataFrame:
 def calculate_bollinger_bands(
     df: pd.DataFrame, window: int = 20, num_std_dev: int = 2
 ) -> pd.DataFrame:
+    """
+    計算布林通道 (Bollinger Bands)。
+    - 中軌 (middle): 20日移動平均線。
+    - 上軌 (upper): 中軌 + 2倍標準差。
+    - 下軌 (lower): 中軌 - 2倍標準差。
+    用途: 判斷股價的波動性與相對高低點。價格觸及上軌可能為超買，觸及下軌可能為超賣。
+    """
     df["bollinger_middle"] = df["close"].rolling(window=window).mean()
     df["bollinger_upper"] = (
         df["bollinger_middle"] + num_std_dev * df["close"].rolling(window=window).std()
@@ -27,6 +41,11 @@ def calculate_bollinger_bands(
 
 
 def calculate_atr(df: pd.DataFrame, window: int = 14) -> pd.DataFrame:
+    """
+    計算平均真實波幅 (Average True Range, ATR)。
+    邏輯: TR (真實波幅) 是今日高低價差、今日最高價與昨日收盤價差、今日最低價與昨日收盤價差三者的最大值。ATR 是 TR 的移動平均。
+    用途: 衡量市場的波動性，常用於設定停損點。ATR 數值越大，波動越劇烈。
+    """
     df["high_low"] = df["high"] - df["low"]
     df["high_close"] = abs(df["high"] - df["close"].shift())
     df["low_close"] = abs(df["low"] - df["close"].shift())
@@ -36,6 +55,11 @@ def calculate_atr(df: pd.DataFrame, window: int = 14) -> pd.DataFrame:
 
 
 def calculate_rsi(df: pd.DataFrame, window: int = 14) -> pd.DataFrame:
+    """
+    計算相對強弱指數 (Relative Strength Index, RSI)。
+    邏輯: 基於一段時間內上漲日和下跌日的平均漲跌幅計算，值介於 0-100。
+    用途: 衡量股價動能的超買或超賣狀態。RSI > 70 通常視為超買，RSI < 30 通常視為超賣。
+    """
     delta = df["close"].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
@@ -50,6 +74,12 @@ def calculate_macd(
     long_period: int = 26,
     signal_period: int = 9,
 ) -> pd.DataFrame:
+    """
+    計算平滑異同移動平均線 (Moving Average Convergence Divergence, MACD)。
+    - MACD線 (快線): 12日EMA - 26日EMA。
+    - 訊號線 (慢線): MACD線的9日EMA。
+    用途: 趨勢跟蹤和動能指標。MACD線向上穿越訊號線為買入訊號 (黃金交叉)，反之為賣出訊號 (死亡交叉)。
+    """
     df["ema_short"] = df["close"].ewm(span=short_period, adjust=False).mean()
     df["ema_long"] = df["close"].ewm(span=long_period, adjust=False).mean()
     df["macd"] = df["ema_short"] - df["ema_long"]
@@ -60,12 +90,23 @@ def calculate_macd(
 def calculate_vma(
     df: pd.DataFrame, short_window: int = 5, long_window: int = 20
 ) -> pd.DataFrame:
+    """
+    計算成交量移動平均線 (Volume Moving Average, VMA)。
+    - vma_short: 5日成交量均線。
+    - vma_long: 20日成交量均線。
+    用途: 判斷市場交易活躍度。短期量均線上穿長期量均線表示近期市場熱度增加。
+    """
     df["vma_short"] = df["volume"].rolling(window=short_window).mean()
     df["vma_long"] = df["volume"].rolling(window=long_window).mean()
     return df
 
 
 def calculate_cci(df: pd.DataFrame, window: int = 20) -> pd.DataFrame:
+    """
+    計算順勢指標 (Commodity Channel Index, CCI)。
+    邏輯: 衡量目前股價相對於其平均價格的偏離程度。
+    用途: 識別趨勢的開始與結束。CCI > +100 通常視為進入超買區，可能回檔；CCI < -100 視為進入超賣區，可能反彈。
+    """
     typical_price = (df["high"] + df["low"] + df["close"]) / 3
     moving_avg = typical_price.rolling(window=window).mean()
     mean_deviation = typical_price.rolling(window=window).apply(
@@ -76,6 +117,11 @@ def calculate_cci(df: pd.DataFrame, window: int = 20) -> pd.DataFrame:
 
 
 def calculate_kdj(df: pd.DataFrame, window: int = 9) -> pd.DataFrame:
+    """
+    計算隨機指標 (Stochastic Oscillator, KDJ)。
+    邏輯: RSV (未成熟隨機值) 表示當前收盤價在最近n日價格區間的相對位置。K、D、J是RSV的平滑值。
+    用途: 動能指標，用於判斷超買超賣。K線向上穿越D線為黃金交叉 (買入訊號)，反之為死亡交叉 (賣出訊號)。J值可反應K、D線的乖離程度。
+    """
     low_min = df["low"].rolling(window=window).min()
     high_max = df["high"].rolling(window=window).max()
     rsv = (df["close"] - low_min) / (high_max - low_min) * 100
@@ -86,6 +132,11 @@ def calculate_kdj(df: pd.DataFrame, window: int = 9) -> pd.DataFrame:
 
 
 def calculate_obv(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    計算能量潮指標 (On-Balance Volume, OBV)。
+    邏輯: 根據股價漲跌來累計成交量。價漲則加，價跌則減。
+    用途: 衡量買賣壓力，觀察量價關係。OBV趨勢應與價格趨勢同步，若出現背離 (如價創新高但OBV未創新高)，可能為趨勢反轉的警訊。
+    """
     obv = [0]
     for i in range(1, len(df)):
         if df["close"].iloc[i] > df["close"].iloc[i - 1]:
@@ -99,6 +150,11 @@ def calculate_obv(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def calculate_adx(df: pd.DataFrame, window: int = 14) -> pd.DataFrame:
+    """
+    計算平均趨向指標 (Average Directional Index, ADX)。
+    邏輯: 基於正趨向動量 (+DI) 和負趨向動量 (-DI) 計算而來，反映趨勢的強度。
+    用途: 衡量趨勢的強度，而非方向。ADX值越高，表示趨勢越強烈 (無論上漲或下跌)。ADX > 25 通常被認為市場處於明確的趨勢行情中。
+    """
     df["up_move"] = df["high"].diff()
     df["down_move"] = df["low"].diff()
     df["down_move"] = df["down_move"].apply(lambda x: abs(x) if pd.notnull(x) else x)
